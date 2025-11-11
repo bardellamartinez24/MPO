@@ -2,16 +2,14 @@ name: Mostrar Fecha Actual
 
 # Disparador: Se ejecuta manualmente desde la interfaz de GitHub Actions
 on:
-  workflow_dispatch:
+| workflow_dispatch: # Línea 5 (indentación de 2 espacios)
 
 # Trabajo (Job)
 jobs:
-  mostrar_hora:
-    name: Obtener Fecha y Hora
-    # Ejecutar en la última versión de Ubuntu
-    runs-on: ubuntu-latest 
-    
-    steps:
-      - name: Ejecutar comando 'date' e imprimir
-        # El comando 'date' en Linux/Unix muestra la fecha y hora actual.
-        run: echo "La fecha y hora actual en la máquina virtual es: $(date)"
+| mostrar_hora: # Línea 9 (indentación de 2 espacios)
+|| name: Obtener Fecha y Hora
+|| # Ejecutar en la última versión de Ubuntu
+|| runs-on: ubuntu-latest 
+|| steps: # Línea 14 (indentación de 4 espacios)
+||| - name: Ejecutar comando 'date' e imprimir # Línea 15 (indentación de 6 espacios + guion)
+||||  run: echo "La fecha y hora actual en la máquina virtual es: $(date)" # Línea 17 (indentación de 8 espacios)
