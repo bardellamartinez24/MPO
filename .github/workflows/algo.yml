@@ -1,0 +1,59 @@
+---
+# Nombre del Playbook
+- name: Despliegue y configuración básica de BIND9
+  hosts: dns_servers  # El grupo de servidores donde se ejecutará (definido en inventory.ini)
+  become: yes         # Usar privilegios de root (sudo)
+
+  vars:
+    dns_server_ip: "192.168.3.253"
+    dominio_interno: "e-kipper.net"
+
+  tasks:
+    - name: 1. Asegurar que BIND9 y dnsutils están instalados
+      apt:
+        name: 
+          - bind9
+          - dnsutils
+        state: present
+        update_cache: yes
+
+    - name: 2. Crear el directorio de logs para BIND9 (Ampliación 2)
+      file:
+        path: /var/log/named
+        state: directory
+        owner: bind
+        group: bind
+        mode: '0755'
+
+    - name: 3. Copiar la plantilla de zona directa (db.e-kipper.net)
+      copy:
+        src: files/db.e-kipper.net.j2  # Archivo local de plantilla (Jinja2)
+        dest: /etc/bind/db.{{ dominio_interno }}
+        owner: root
+        group: bind
+        mode: '0644'
+      when: inventario_hostname == 'dns-maestro' # Se asume que solo el maestro necesita esta copia
+
+    - name: 4. Configurar reenvío externo (Forwarders)
+      lineinfile:
+        path: /etc/bind/named.conf.options
+        regexp: '^\s*// forwarders'
+        line: |
+              forwarders {
+                  8.8.8.8;
+                  8.8.4.4;
+              };
+        insertafter: '^\s*listen-on \{ 127.0.0.1; \};'
+      notify: Reiniciar BIND9
+
+    - name: 5. Asegurar que el servicio BIND9 está corriendo
+      service:
+        name: bind9
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Reiniciar BIND9
+      service:
+        name: bind9
+        state: restarted
