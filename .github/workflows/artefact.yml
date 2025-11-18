@@ -1,0 +1,14 @@
+name: CI Workflow
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Ejecutar pruebas
+        run: pytest > test-results.xml
+      - name: Guardar artefactos
+        uses: actions/upload-artifact@v3
+        with:
+          name: resultados-pruebas
+          path: test-results.xml
